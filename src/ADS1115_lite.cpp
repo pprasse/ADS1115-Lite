@@ -125,14 +125,7 @@ int16_t ADS1115_lite::getConversion() {  // Wait for the conversion to complete
    do {
       } while(!isConversionDone());
 	  
-  // Read the conversion results
-	Wire.beginTransmission(_i2cAddress); //Sets the Address of the ADS1115.
-	Wire.write(ADS1115_REG_POINTER_CONVERT); //queue the data to be sent, in this case modify the pointer register so that the following RequestFrom reads the conversion register
-	Wire.endTransmission(); //Send the data
-	
-	Wire.requestFrom(_i2cAddress, (uint8_t)2); //Request the 2 byte conversion register
-return ((Wire.read() << 8) | Wire.read()); //Read each byte.  Shift the first byte read 8 bits to the left and OR it with the second byte.
-
+	return getConversionResult();
 }
 /**************************************************************************/
 /*!
@@ -148,3 +141,51 @@ bool ADS1115_lite::isConversionDone() {
 	Wire.requestFrom(_i2cAddress, (uint8_t)2); //Request 2 byte config register
   return ((Wire.read() << 8) | Wire.read())>>15 ; //Read 2 bytes.  Return the most signifagant bit
 }
+
+
+/**************************************************************************/
+/*!
+		Trigger continuous conversion
+*/
+/**************************************************************************/
+uint8_t ADS1115_lite::triggerContinuous() {
+	
+	//Bits 0 through 4 deal with the comparator function
+		uint16_t config = 0x0000; // Enable comparator: Assert after one conversion; nonlatching; active low; traditional (non-window) comparator
+
+	// OR in the Data rate or Sample Per Seconds bits 5 through 7
+		config |= _rate;
+
+    // continuous mode (config bit 8 = 0)
+
+	// OR in the PGA/voltage range bits 9 through 11
+		config |= _gain;
+
+	// OR in the mux channel, bits 12 through 14
+		config |= _mux;
+
+	// Write config register to the ADC
+		Wire.beginTransmission(_i2cAddress);
+		Wire.write(ADS1115_REG_POINTER_CONFIG);
+		Wire.write((uint8_t)(config>>8));
+		Wire.write((uint8_t)(config & 0xFF));
+		return Wire.endTransmission();
+}
+
+
+/**************************************************************************/
+/*!
+    @brief  Returns the  last conversion results
+*/
+/**************************************************************************/
+int16_t ADS1115_lite::getConversionResult() {
+  // Read the conversion results
+	Wire.beginTransmission(_i2cAddress); //Sets the Address of the ADS1115.
+	Wire.write(ADS1115_REG_POINTER_CONVERT); //queue the data to be sent, in this case modify the pointer register so that the following RequestFrom reads the conversion register
+	Wire.endTransmission(); //Send the data
+	
+	Wire.requestFrom(_i2cAddress, (uint8_t)2); //Request the 2 byte conversion register
+return ((Wire.read() << 8) | Wire.read()); //Read each byte.  Shift the first byte read 8 bits to the left and OR it with the second byte.
+
+}
+
