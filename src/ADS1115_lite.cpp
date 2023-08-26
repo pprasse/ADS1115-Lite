@@ -172,6 +172,21 @@ uint8_t ADS1115_lite::triggerContinuous() {
 		return Wire.endTransmission();
 }
 
+uint8_t ADS1115_lite::lowThreshold(uint16_t value) {
+    Wire.beginTransmission(_i2cAddress);
+    Wire.write(ADS1115_REG_POINTER_LOW_THRESH);
+    Wire.write((uint8_t)(value >> 8));
+    Wire.write((uint8_t)(value & 0xFF));
+    return Wire.endTransmission();
+}
+
+uint8_t ADS1115_lite::highThreshold(uint16_t value) {
+    Wire.beginTransmission(_i2cAddress);
+    Wire.write(ADS1115_REG_POINTER_HIGH_THRESH);
+    Wire.write((uint8_t)(value >> 8));
+    Wire.write((uint8_t)(value & 0xFF));
+    return Wire.endTransmission();
+}
 
 /**************************************************************************/
 /*!
@@ -185,7 +200,6 @@ int16_t ADS1115_lite::getConversionResult() {
 	Wire.endTransmission(); //Send the data
 	
 	Wire.requestFrom(_i2cAddress, (uint8_t)2); //Request the 2 byte conversion register
-return ((Wire.read() << 8) | Wire.read()); //Read each byte.  Shift the first byte read 8 bits to the left and OR it with the second byte.
-
+	return ((Wire.read() << 8) | Wire.read()); //Read each byte.  Shift the first byte read 8 bits to the left and OR it with the second byte.
 }
 

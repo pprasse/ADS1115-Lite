@@ -39,6 +39,8 @@ ADS1115 lite library - Adapted from adafruit ADS1015/ADS1115 library
     -----------------------------------------------------------------------*/
     #define ADS1115_REG_POINTER_CONVERT     (0x00)
     #define ADS1115_REG_POINTER_CONFIG      (0x01)
+    #define ADS1115_REG_POINTER_LOW_THRESH      (0x02)
+    #define ADS1115_REG_POINTER_HIGH_THRESH      (0x03)
 /*=========================================================================*/
 
 /*=========================================================================
@@ -102,6 +104,8 @@ class ADS1115_lite
 		bool	isConversionDone(); //Polls ADS1115 for the conversion done register.  Returns 1 if conversion is finished, 0 if in the middle of conversion.
 		int16_t	getConversion(); //Polls ADS1115 for the conversion done register.  Waits until it is finished and returns value.
 
+		uint8_t lowThreshold(uint16_t value);
+		uint8_t highThreshold(uint16_t value);
 		uint8_t	triggerContinuous(void); //Triggers a continuous conversion with currently configured settings in protected variables.  Immediately returns
 		int16_t	getConversionResult();
 };
